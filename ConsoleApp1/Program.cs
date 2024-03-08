@@ -37,11 +37,18 @@
         }
         private static void Main(string[] args)
         {
+            string path = @"c:\_C#\Results.txt";
+
+            if (!File.Exists(path))
+            {
+                Table.CreateFirstRow(path);
+            }
 
             string[] questions = GetQuestions();
             int[] answers = GetAnswers();
 
             int countQuestions = GetQuestions().Count();
+            int bestCountCorrectAnswers = -1;
 
             Console.WriteLine("Как Вас зовут?");
             string userName = Console.ReadLine();
@@ -70,6 +77,11 @@
 
                 Console.WriteLine("Количество правильных ответов: " + countCorrectAnswers);
 
+                if (countCorrectAnswers > bestCountCorrectAnswers)
+                {
+                    bestCountCorrectAnswers = countCorrectAnswers;
+                }
+
                 string result = GetScores(countCorrectAnswers, countQuestions);
                 Console.WriteLine(userName + ", Ваш диагноз: " + result);
 
@@ -88,6 +100,7 @@
                 }
                 if (userAnswer2.Equals("нет"))
                 {
+                    Table.AddRowToTable(path, userName, GetScores(bestCountCorrectAnswers, countQuestions));
                     break;
                 }
             }
