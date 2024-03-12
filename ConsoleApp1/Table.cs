@@ -8,41 +8,58 @@ namespace questionnaire
 {
     public static class Table
     {
-        private static string spaces1 = new string('-', 25);
-        private static string spaces2 = new string('-', 12);
-        private static string empty_spaces1 = new string(' ', 25);
-        private static string empty_spaces2 = new string(' ', 12);
+        public static string path = @"c:\_C#\Results.txt";
 
-        private static string divider = '+' + spaces1 + '+' + spaces2 + '+';
-        private static string newline = '|' + empty_spaces1 + '|' + empty_spaces2 + '|';
+        private static string spaces1 = new string(' ', 20);
+        private static string spaces2 = new string(' ', 12);
+        private static string spaces3 = new string('-', 24);
+        private static string spaces4 = new string('-', 22);
+        private static string spaces5 = new string('-', 17);
 
-        public static void CreateFirstRow(string path)
+        private static string empty_spaces1 = new string(' ', 24);
+        private static string empty_spaces2 = new string(' ', 22);
+        private static string empty_spaces3 = new string(' ', 17);
+
+        private static string first_line = "| " + "ФИО" + spaces1 + "| " + "Результат" + spaces2 + "| " + "Дата" + spaces2 + '|';
+        private static string divider = '|' + spaces3 + '|' + spaces4 + '|' + spaces5 + '|';
+
+        private static string newline = '|' + empty_spaces1 + '|' + empty_spaces2 + '|' + empty_spaces3 + '|';
+
+        public static void ShowResults()
         {
-            var first_line = new StringBuilder(divider);
-            var line = new StringBuilder(newline);
+            Console.WriteLine(first_line);
+            Console.WriteLine(divider);
 
-            line.Insert(2, "ФИО");
-            line.Remove(5, 3);
-            line.Insert(28, "Результат");
-            line.Remove(37, 9);
+            StreamReader sr = new StreamReader(path);
+            var line = sr.ReadLine();
+            while (line != null)
+            {
+                var splittedLine = line.Split('#');
+                var name = splittedLine[0];
+                var result = splittedLine[1];
+                var time = splittedLine[2];
 
-            File.WriteAllText(path, divider + Environment.NewLine);
-            File.AppendAllText(path, line + Environment.NewLine);
-            File.AppendAllText(path, divider + Environment.NewLine);
+                var newLine = new StringBuilder(newline);
+                newLine.Insert(2, name);
+                newLine.Remove(2 + name.Length, name.Length);
+                newLine.Insert(27, result);
+                newLine.Remove(27 +  result.Length, result.Length);
+                newLine.Insert(50, time);
+                newLine.Remove(50 + time.Length, time.Length);
+
+                Console.WriteLine(newLine);
+                line = sr.ReadLine();
+            }
+            sr.Close();
+            Console.WriteLine();
         }
-        public static void AddRowToTable(string path, string name, string row)
+        public static void AddData(string name, string result, string curDate)
         {
-            int name_length = name.Length;
-            int row_length = row.Length;
+            string newData = name + "#" + result + "#" + curDate;
 
-            var new_row = new StringBuilder(newline);
-            new_row.Insert(2, name);
-            new_row.Remove(2 + name_length, name_length);
-            new_row.Insert(28, row);
-            new_row.Remove(28 + row_length, row_length);
-
-            File.AppendAllText(path, new_row + Environment.NewLine);
-            File.AppendAllText(path, divider + Environment.NewLine);
+            TextWriter tw = new StreamWriter(path, true);
+            tw.WriteLine(newData);
+            tw.Close();
         }
     }
 }
