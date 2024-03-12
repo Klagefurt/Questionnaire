@@ -2,6 +2,22 @@
 {
     internal class Program
     {
+        static string CheckAnswer()
+        {
+            string userAnswer;
+            while (true)
+            {
+                userAnswer = Console.ReadLine();
+                bool answer = userAnswer.Equals("да") || userAnswer.Equals("нет");
+                if (!answer)
+                {
+                    Console.WriteLine("Вы ошиблись при вводе, попробуйте снова");
+                }
+                else
+                    break;
+            }
+            return userAnswer;
+        }
         static string[] GetQuestions()
         {
             string[] questions = new string[] {
@@ -37,61 +53,72 @@
         }
         private static void Main(string[] args)
         {
-
             string[] questions = GetQuestions();
             int[] answers = GetAnswers();
 
             int countQuestions = GetQuestions().Count();
+            int countCorrectAnswers = 0;
+            int bestCountCorrectAnswers = -1;
 
-            Console.WriteLine("Как Вас зовут?");
-            string userName = Console.ReadLine();
+            string userAnswer;
+            string userName;
 
-            while (true)
+            Console.WriteLine("Хотите загрузить результаты? (да, нет)");
+            userAnswer = CheckAnswer();
+            if (userAnswer.Equals("да")) 
+                Table.ShowResults();
+
+            Console.WriteLine("Хотите пройти тестирование? (да, нет)");
+            userAnswer = CheckAnswer();
+            if (userAnswer.Equals("да"))
             {
-                System.Random rnd = new System.Random();
-                var numbers = Enumerable.Range(0, countQuestions).OrderBy(r => rnd.Next()).ToArray();
-                int countCorrectAnswers = 0;
+                Console.WriteLine("Как Вас зовут?");
+                userName = Console.ReadLine();
 
-                for (int i = 0; i < countQuestions; i++)
-                {
-                    int currentRandomNumber = numbers[i];
-
-                    int userAnswer1;
-                    Console.WriteLine("Вопрос N: " + (i + 1));
-                    Console.WriteLine(GetQuestions()[currentRandomNumber]);
-
-                    while (!int.TryParse(Console.ReadLine(), out userAnswer1))
-                    {
-                        Console.WriteLine("Вы ввели не цифру, попробуйте еще раз");
-                    }
-
-                    if (userAnswer1 == GetAnswers()[currentRandomNumber]) { countCorrectAnswers++; }
-                }
-
-                Console.WriteLine("Количество правильных ответов: " + countCorrectAnswers);
-
-                string result = GetScores(countCorrectAnswers, countQuestions);
-                Console.WriteLine(userName + ", Ваш диагноз: " + result);
-
-                Console.WriteLine("\nХотите пройти тест еще раз? Лучший результат попадет в итоговую таблицу (да, нет)");
-                string userAnswer2;
                 while (true)
                 {
-                    userAnswer2 = Console.ReadLine();
-                    bool answer = userAnswer2.Equals("да") || userAnswer2.Equals("нет");
-                    if (!answer)
+                    System.Random rnd = new System.Random();
+                    var numbers = Enumerable.Range(0, countQuestions).OrderBy(r => rnd.Next()).ToArray();
+
+                    for (int i = 0; i < countQuestions; i++)
                     {
-                        Console.WriteLine("Вы ошиблись при вводе, попробуйте снова");
+                        int currentRandomNumber = numbers[i];
+
+                        int userIntAnswer;
+                        Console.WriteLine("Вопрос N: " + (i + 1));
+                        Console.WriteLine(GetQuestions()[currentRandomNumber]);
+
+                        while (!int.TryParse(Console.ReadLine(), out userIntAnswer))
+                        {
+                            Console.WriteLine("Вы ввели не цифру, попробуйте еще раз");
+                        }
+
+                        if (userIntAnswer == GetAnswers()[currentRandomNumber]) { countCorrectAnswers++; }
                     }
-                    else
+
+                    Console.WriteLine("Количество правильных ответов: " + countCorrectAnswers);
+
+                    if (countCorrectAnswers > bestCountCorrectAnswers)
+                    {
+                        bestCountCorrectAnswers = countCorrectAnswers;
+                    }
+
+                    string result = GetScores(countCorrectAnswers, countQuestions);
+                    Console.WriteLine(userName + ", Ваш диагноз: " + result);
+
+                    Console.WriteLine("\nХотите пройти тест еще раз? Лучший результат попадет в итоговую таблицу (да, нет)");
+                    userAnswer = CheckAnswer();
+
+                    if (userAnswer.Equals("нет"))
+                    {
+                        DateTime dt = DateTime.Now;
+                        string curDate = dt.ToShortDateString();
+                        string userResult = GetScores(bestCountCorrectAnswers, countQuestions);
+                        Table.AddData(userName, userResult, curDate);
                         break;
-                }
-                if (userAnswer2.Equals("нет"))
-                {
-                    break;
+                    }
                 }
             }
-
         }
     }
 }
